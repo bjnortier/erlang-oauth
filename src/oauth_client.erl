@@ -5,6 +5,7 @@
 -export([access_token_params/1, deauthorize/1, get/2, get/3, get/4, get_access_token/2,
   get_access_token/3, get_access_token/4, get_request_token/2, get_request_token/3,
   get_request_token/4, start/1, start/2, start_link/1, start_link/2, stop/1]).
+-export([oauth_get/6]).
 
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, code_change/3, terminate/2]).
 
