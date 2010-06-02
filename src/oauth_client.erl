@@ -4,7 +4,9 @@
 
 -export([access_token_params/1, deauthorize/1, get/2, get/3, get/4, get_access_token/2,
   get_access_token/3, get_access_token/4, get_request_token/2, get_request_token/3,
-  get_request_token/4, start/1, start/2, start_link/1, start_link/2, stop/1]).
+  get_request_token/4, start/1, start/2, start_link/1, start_link/2, 
+  start_authenticated/2, start_authenticated/3, start_link_authenticated/2, start_link_authenticated/3,
+  stop/1]).
 -export([oauth_get/6]).
 
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, code_change/3, terminate/2]).
@@ -14,16 +16,28 @@
 %%============================================================================
 
 start(Consumer) ->
-  gen_server:start(?MODULE, Consumer, []).
+  gen_server:start(?MODULE, {Consumer}, []).
 
 start(ServerName, Consumer) ->
-  gen_server:start(ServerName, ?MODULE, Consumer, []).
+  gen_server:start(ServerName, ?MODULE, {Consumer}, []).
 
 start_link(Consumer) ->
-  gen_server:start_link(?MODULE, Consumer, []).
+  gen_server:start_link(?MODULE, {Consumer}, []).
 
 start_link(ServerName, Consumer) ->
-  gen_server:start_link(ServerName, ?MODULE, Consumer, []).
+  gen_server:start_link(ServerName, ?MODULE, {Consumer}, []).
+
+start_authenticated(Consumer, AParams) ->
+  gen_server:start(?MODULE, {Consumer, undefined, AParams}, []).
+
+start_authenticated(ServerName, Consumer, AParams) ->
+  gen_server:start(ServerName, ?MODULE, {Consumer, undefined, AParams}, []).
+
+start_link_authenticated(Consumer, AParams) ->
+  gen_server:start_link(?MODULE, {Consumer, undefined, AParams}, []).
+
+start_link_authenticated(ServerName, Consumer, AParams) ->
+  gen_server:start_link(ServerName, ?MODULE, {Consumer, undefined, AParams}, []).
 
 get_request_token(Client, URL) ->
   get_request_token(Client, URL, [], header).
@@ -77,8 +91,8 @@ oauth_get(querystring, URL, Params, Consumer, Token, TokenSecret) ->
 %% gen_server callbacks
 %%============================================================================
 
-init(Consumer) ->
-  {ok, {Consumer}}.
+init(State) ->
+  {ok, State}.
 
 handle_call({get_request_token, URL, Params, ParamsMethod}, _From, State={Consumer}) ->
   case oauth_get(ParamsMethod, URL, Params, Consumer, "", "") of
